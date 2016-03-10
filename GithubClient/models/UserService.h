@@ -18,6 +18,7 @@ typedef enum : NSUInteger
 
 @class Repository;
 @class Subscriber;
+
 @interface UserService : NSObject
 
 + (UserService * _Nonnull)sharedInstance;
@@ -38,6 +39,7 @@ typedef enum : NSUInteger
                                      count:(NSUInteger)theCount
                                    taskKey:(NSString * _Nonnull)theTaskKey
                                 completion:(void (^ _Nonnull)(NSArray<Subscriber *> * _Nullable repositoriesArray, NSError * _Nullable error))theCompletionBlock;
+
 @end
 
 

@@ -25,7 +25,7 @@ typedef enum : NSUInteger
 @property (nonatomic, assign) BOOL theIsMoving;
 @property (nonatomic, assign) double theStartMovingCenterX;
 @property (nonatomic, assign) double theStartMovingCenterY;
-@property (nonatomic, assign, readwrite) NSInteger theCurrentPageIndex;
+@property (nonatomic, assign) NSInteger theCurrentPageIndex;
 @property (nonatomic, assign) NSInteger theCountOfPages;
 
 @end
@@ -207,8 +207,7 @@ typedef enum : NSUInteger
         {
             return;
         }
-        
-        UIView* theCurrentView = self.theViewsArray[self.theCurrentPageIndex];
+        UIView *theCurrentView = self.theViewsArray[self.theCurrentPageIndex];
         NSInteger theCurrentArrayIndex = [self.theHolderViewArray indexOfObject:theCurrentView];
         switch (self.theViewPagingOrientation)
         {
@@ -377,7 +376,6 @@ typedef enum : NSUInteger
     }
     
     self.theCountOfPages++;
-    
     if (self.isInfinite)
     {
         if (self.theViewsArray.count == 1)
@@ -385,7 +383,7 @@ typedef enum : NSUInteger
             [self.theHolderViewArray addObject:thePage];
             return;
         }
-        UIView* theLastView = self.theViewsArray[self.theViewsArray.count-2];
+        UIView *theLastView = self.theViewsArray[self.theViewsArray.count-2];
         int theLastViewIndexInHolderViewArray = 0;
         for (int i = 0; i < self.theHolderViewArray.count; i++)
         {
@@ -403,7 +401,7 @@ typedef enum : NSUInteger
 
 - (void)methodScrollToViewWithIndex:(NSInteger)theIndex
 {
-    if (!self.isInfinite)
+    if (self.isInfinite)
     {
         abort();
     }
@@ -571,7 +569,7 @@ typedef enum : NSUInteger
     }
     NSArray *theViewsArray = self.theViewsArray.copy;
     self.theCountOfPages = 0;
-    _theCurrentPageIndex = 0;
+    self.theCurrentPageIndex = 0;
     [self.theViewsArray removeAllObjects];
     [self.theHolderViewArray removeAllObjects];
     for (int i = 0; i < theViewsArray.count; i++)

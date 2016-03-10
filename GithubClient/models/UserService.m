@@ -5,13 +5,13 @@
 //  Created by User on 04.03.16.
 //  Copyright © 2016 BZ. All rights reserved.
 //
-#define HOST_NAME_CONSTANT @"https://api.github.com/"
-
 #import "UserService.h"
 
 #import "BZExtensionsManager.h"
 #import "Repository.h"
 #import "Subscriber.h"
+
+#define HOST_NAME_CONSTANT @"https://api.github.com/"
 
 @interface UserService ()
 
@@ -19,17 +19,25 @@
 
 @end
 
-static UserService *theUserService = nil;
-
 @implementation UserService
 
 #pragma mark - Class Methods (Public)
 
 + (UserService * _Nonnull)sharedInstance
 {
+    static UserService *theUserService = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^
+                  {
+                      theUserService = [[UserService alloc] initPrivate];
+                  });
     
-    
-    
+    return theUserService;
+}
+
++ (UserService *)exampleee
+{
+    static UserService *theUserService;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^
                   {
@@ -46,7 +54,6 @@ static UserService *theUserService = nil;
 - (instancetype)init
 {
     abort();
-    return [[self class] sharedInstance];
 }
 
 - (instancetype)initPrivate
@@ -54,9 +61,14 @@ static UserService *theUserService = nil;
     self = [super init];
     if (self)
     {
-        self.theServiceDictionary = [NSMutableDictionary new];
+        [self methodInitUserService];
     }
     return self;
+}
+
+- (void)methodInitUserService
+{
+    self.theServiceDictionary = [NSMutableDictionary new];
 }
 
 #pragma mark - Setters (Public)
@@ -88,10 +100,10 @@ static UserService *theUserService = nil;
     {
         abort();
     }
-    BZUrlSession *theSession;
+    BZURLSession *theSession;
     if (!self.theServiceDictionary[theTaskKey])
     {
-        theSession = [BZUrlSession new];
+        theSession = [BZURLSession new];
         self.theServiceDictionary[theTaskKey] = theSession;
     }
     else
@@ -100,8 +112,8 @@ static UserService *theUserService = nil;
     }
     NSString *theUrlString = [NSString stringWithFormat:@"%@repositories?per_page=%ld&page=%ld",HOST_NAME_CONSTANT,theCount,thePage];
     NSURL *theUrl = [NSURL URLWithString:theUrlString];
-    [theSession methodStartTaskWithUrl:theUrl
-                   withCompletionBlock:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
+    [theSession methodStartTaskWithURL:theUrl
+                   completionBlock:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
      {
          NSError *theError;
          if (!data)
@@ -155,10 +167,10 @@ static UserService *theUserService = nil;
     {
         abort();
     }
-    BZUrlSession *theSession;
+    BZURLSession *theSession;
     if (!self.theServiceDictionary[theTaskKey])
     {
-        theSession = [BZUrlSession new];
+        theSession = [BZURLSession new];
         self.theServiceDictionary[theTaskKey] = theSession;
     }
     else
@@ -167,8 +179,8 @@ static UserService *theUserService = nil;
     }
     NSString *theUrlString = [NSString stringWithFormat:@"%@search/repositories?q=%@&per_page=%ld&page=%ld",HOST_NAME_CONSTANT,theSearchString,theCount,thePage];
     NSURL *theUrl = [NSURL URLWithString:theUrlString];
-    [theSession methodStartTaskWithUrl:theUrl
-                   withCompletionBlock:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
+    [theSession methodStartTaskWithURL:theUrl
+                   completionBlock:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
      {
          NSError *theError;
          if (!data)
@@ -229,10 +241,10 @@ static UserService *theUserService = nil;
     {
         abort();
     }
-    BZUrlSession *theSession;
+    BZURLSession *theSession;
     if (!self.theServiceDictionary[theTaskKey])
     {
-        theSession = [BZUrlSession new];
+        theSession = [BZURLSession new];
         [self.theServiceDictionary setObject:theSession forKey:theTaskKey];
     }
     else
@@ -241,7 +253,7 @@ static UserService *theUserService = nil;
     }
     NSString *theLoadUrlString = [NSString stringWithFormat:@"%@?per_page=%ld&page=%ld",theUrlString,(long)theCount,thePage];
     NSURL *theNSURL = [NSURL URLWithString:theLoadUrlString];
-    [theSession methodStartTaskWithUrl:theNSURL withCompletionBlock:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
+    [theSession methodStartTaskWithURL:theNSURL completionBlock:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
     {
         NSError *theError;
         if (!data)
@@ -280,8 +292,6 @@ static UserService *theUserService = nil;
         }
         theCompletionBlock(theLoadedSubscribersArray, theError);
     }];
-
-
 }
 
 #pragma mark - Methods (Private)

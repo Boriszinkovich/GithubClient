@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @class Repository;
+
 @interface RepositoriesCell : UITableViewCell
 
 @property (nonatomic, strong, nonnull) Repository *theRepository;

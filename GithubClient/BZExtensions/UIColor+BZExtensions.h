@@ -10,7 +10,7 @@
 
 @interface UIColor (BZExtensions)
 
-+ (UIColor * _Nullable)colorWithHexString:(NSString * _Nonnull)hex;
++ (UIColor * _Nullable)getColorWithHexString:(NSString * _Nonnull)hex;
 
 @end
 

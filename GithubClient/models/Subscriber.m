@@ -49,23 +49,23 @@
     {
         abort();
     }
-    
     id theObject = theSubscriberDictionary[@"login"];
     if (theObject && ![theObject isEqual:[NSNull null]])
     {
-        self.theNameString = [NSString stringWithFormat:@"%@",theObject];
+        self.theNameString = [NSString stringWithFormat:@"%@",
+                              theObject];
     }
     theObject = theSubscriberDictionary[@"avatar_url"];
     if (theObject && ![theObject isEqual:[NSNull null]])
     {
-        self.theAvatarUrlString = [NSString stringWithFormat:@"%@",theObject];
+        self.theAvatarUrlString = [NSString stringWithFormat:@"%@",
+                                   theObject];
     }
 }
 
 #pragma mark - Methods (Private)
 
 #pragma mark - Standard Methods
-
 
 @end
 

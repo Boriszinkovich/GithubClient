@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @class Subscriber;
+
 @interface SubscriberCell : UITableViewCell
 
 @property (nonatomic, strong, nonnull) Subscriber *theSubscriber;

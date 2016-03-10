@@ -49,10 +49,6 @@
 
 - (void)methodSetRepositoryWithDictionary:(NSDictionary * _Nonnull)theRepositoryDictionary
 {
-    if (!theRepositoryDictionary)
-    {
-        abort();
-    }
     if (![theRepositoryDictionary isKindOfClass:[NSDictionary class]])
     {
         abort();
@@ -60,22 +56,22 @@
     id theObject = theRepositoryDictionary[@"name"];
     if (theObject && ![theObject isEqual:[NSNull null]])
     {
-        self.theNameString = [NSString stringWithFormat:@"%@",theObject];
+        self.theNameString = [NSString stringWithFormat:@"%@", theObject];
     }
     theObject = theRepositoryDictionary[@"description"];
     if (theObject && ![theObject isEqual:[NSNull null]])
     {
-        self.theDescriptionString = [NSString stringWithFormat:@"%@",theObject];
+        self.theDescriptionString = [NSString stringWithFormat:@"%@", theObject];
     }
     theObject = theRepositoryDictionary[@"forks"];
     if (theObject && ![theObject isEqual:[NSNull null]])
     {
-        self.theForksCountString = [NSString stringWithFormat:@"%@",theObject];
+        self.theForksCountString = [NSString stringWithFormat:@"%@", theObject];
     }
     theObject = theRepositoryDictionary[@"subscribers_url"];
     if (theObject && ![theObject isEqual:[NSNull null]])
     {
-        self.theSubscribersUrlString = [NSString stringWithFormat:@"%@",theObject];
+        self.theSubscribersUrlString = [NSString stringWithFormat:@"%@", theObject];
     }
     theObject = theRepositoryDictionary[@"owner"];
     if (theObject && ![theObject isEqual:[NSNull null]])

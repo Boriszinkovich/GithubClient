@@ -97,7 +97,6 @@ typedef enum : NSUInteger
     dispatch_once(&onceToken, ^
                   {
                       Class class = [self class];
-                      
                       SEL originalSelector = nil;
                       SEL swizzledSelector = nil;
                       Method originalMethod = nil;
@@ -279,7 +278,6 @@ typedef enum : NSUInteger
     return theView;
 }
 
-
 - (double)theMinX
 {
     return self.frame.origin.x;
@@ -380,7 +378,7 @@ typedef enum : NSUInteger
 
 #pragma mark - Methods (Public)
 
-- (NSArray * _Nonnull)getTheSeparatorsArray
+- (NSArray * _Nonnull)theSeparatorsArray
 {
     NSMutableArray *theMutableArray = [NSMutableArray new];
     UIView *theBottomSeparatorView = objc_getAssociatedObject(self, @selector(theBottomSeparatorView));
@@ -414,7 +412,7 @@ typedef enum : NSUInteger
 
 - (void)methodAdjustTheSeparatorsViewArraySizeWithNewWidth:(double)theNewWidth
 {
-    NSArray *theSeparatorsViewArray = [self getTheSeparatorsArray];
+    NSArray *theSeparatorsViewArray = self.theSeparatorsArray;
     if (theSeparatorsViewArray.count == 0)
     {
         return;
@@ -456,7 +454,7 @@ typedef enum : NSUInteger
 
 - (void)methodAdjustTheSeparatorsViewArraySizeWithNewHeight:(double)theNewHeight
 {
-    NSArray *theSeparatorsViewArray = [self getTheSeparatorsArray];
+    NSArray *theSeparatorsViewArray = self.theSeparatorsArray;
     if (theSeparatorsViewArray.count == 0)
     {
         return;
@@ -497,7 +495,7 @@ typedef enum : NSUInteger
 
 - (void)methodAdjustTheSeparatorsViewArrayOriginWithNewHeight:(double)theNewHeight
 {
-    NSArray *theSeparatorsViewArray = [self getTheSeparatorsArray];
+    NSArray *theSeparatorsViewArray = self.theSeparatorsArray;
     if (theSeparatorsViewArray.count == 0)
     {
         return;
@@ -538,7 +536,7 @@ typedef enum : NSUInteger
 
 - (void)methodAdjustTheSeparatorsViewArrayOriginWithNewWidth:(double)theNewWidth
 {
-     NSArray *theSeparatorsViewArray = [self getTheSeparatorsArray];
+     NSArray *theSeparatorsViewArray = self.theSeparatorsArray;
     if (theSeparatorsViewArray.count == 0)
     {
         return;

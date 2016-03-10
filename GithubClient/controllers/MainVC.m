@@ -22,7 +22,7 @@
 @property (nonatomic, strong, nonnull) NSURLSession *theMainNSUrlSession;
 @property (nonatomic, strong, nonnull) NSURLSessionDataTask *theMainDataTask;
 @property (nonatomic, assign) NSInteger theCurrentLoadPage;
-@property (nonatomic, strong) UIRefreshControl* theMainRefreshControl;
+@property (nonatomic, strong) UIRefreshControl *theMainRefreshControl;
 @property (nonatomic, strong, nonnull) UIActivityIndicatorView *theFooterIndicator;
 @property (nonatomic, assign) NSInteger theCurrentTotalRepositoriesNumber;
 @property (nonatomic, strong) Reachability *theInternetReachability;
@@ -108,22 +108,22 @@ const NSString *theMainVCKey = @"theMainVCKey";
 //    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(actionReachabilityChanged:) name:kReachabilityChangedNotification object:nil];
     Reachability *theInternerReachability = [Reachability reachabilityForInternetConnection];
     self.theInternetReachability = theInternerReachability;
-    @weakify(self);
+    weakify(self);
     theInternerReachability.reachableBlock = ^(Reachability *theReachability)
     {
         [BZExtensionsManager methodAsyncMainWithBlock:^
         {
-            @strongify(self);
+            strongify(self);
             self.theCurrentLoadPage = 1;
             [self methodLoadWithChanges];
         }];
     };
     theInternerReachability.unreachableBlock = ^(Reachability *theReachability)
     {
-        @weakify(self);
+        weakify(self);
         [BZExtensionsManager methodAsyncMainWithBlock:^
          {
-             @strongify(self);
+             strongify(self);
              [self methodAlertWithNoInternet];
              [self.theMainRefreshControl endRefreshing];
              [self.theFooterIndicator stopAnimating];
@@ -136,7 +136,7 @@ const NSString *theMainVCKey = @"theMainVCKey";
     theTopView.theHeight = 125;
     theTopView.theWidth = theTopView.superview.theWidth;
     
-    theTopView.backgroundColor = [UIColor colorWithHexString:@"F5F5F5"];
+    theTopView.backgroundColor = [UIColor getColorWithHexString:@"F5F5F5"];
     {
         UIImageView *theImageView = [UIImageView new];
         [theTopView addSubview:theImageView];
@@ -381,10 +381,13 @@ const NSString *theMainVCKey = @"theMainVCKey";
     UserService *theUserService = [UserService sharedInstance];
     if (isEqual(self.theSearchField.text, @""))
     {
-        @weakify(self);
-        [theUserService methodLoadAllRepositoriesWithPage:1 count:100 taskKey:theMainVCKey.copy completion:^(NSArray<Repository *> * _Nullable repositoriesArray, NSError * _Nullable error)
+        weakify(self);
+        [theUserService methodLoadAllRepositoriesWithPage:1
+                                                    count:100
+                                                  taskKey:theMainVCKey.copy
+                                               completion:^(NSArray<Repository *> * _Nullable repositoriesArray, NSError * _Nullable error)
          {
-             @strongify(self);
+             strongify(self);
              [self methodUpdateInterfaceWithRepoArray:repositoriesArray
                                            totalCount:repositoriesArray.count
                                                  page:1
@@ -392,14 +395,14 @@ const NSString *theMainVCKey = @"theMainVCKey";
          }];
         return;
     }
-    @weakify(self);
+    weakify(self);
     [theUserService methodLoadRepositoriesWithSearchString:self.theSearchField.text
                                                       page:self.theCurrentLoadPage
                                                      count:theLoadsCount
                                                    taskKey:theMainVCKey.copy
                                                 completion:^(NSArray<Repository *> * _Nullable theRepositoriesArray, NSInteger theTotalCount, NSError * _Nullable error)
     {
-        @strongify(self);
+        strongify(self);
         [self methodUpdateInterfaceWithRepoArray:theRepositoriesArray
                                       totalCount:theTotalCount
                                             page:self.theCurrentLoadPage
@@ -422,10 +425,13 @@ const NSString *theMainVCKey = @"theMainVCKey";
     UserService *theUserService = [UserService sharedInstance];
     if (isEqual(self.theSearchField.text, @""))
     {
-        @weakify(self);
-        [theUserService methodLoadAllRepositoriesWithPage:1 count:100 taskKey:theMainVCKey.copy completion:^(NSArray<Repository *> * _Nullable repositoriesArray, NSError * _Nullable error)
+        weakify(self);
+        [theUserService methodLoadAllRepositoriesWithPage:1
+                                                    count:100
+                                                  taskKey:theMainVCKey.copy
+                                               completion:^(NSArray<Repository *> * _Nullable repositoriesArray, NSError * _Nullable error)
          {
-             @strongify(self);
+             strongify(self);
              [self methodUpdateInterfaceWithRepoArray:repositoriesArray
                                            totalCount:repositoriesArray.count
                                                  page:1
@@ -433,14 +439,14 @@ const NSString *theMainVCKey = @"theMainVCKey";
          }];
         return;
     }
-    @weakify(self);
+    weakify(self);
     [theUserService methodLoadRepositoriesWithSearchString:self.theSearchField.text
                                                       page:self.theCurrentLoadPage
                                                      count:theLoadsCount
                                                    taskKey:theMainVCKey.copy
                                                 completion:^(NSArray<Repository *> * _Nullable theRepositoriesArray, NSInteger theTotalCount, NSError * _Nullable error)
      {
-         @strongify(self);
+         strongify(self);
          [self methodUpdateInterfaceWithRepoArray:theRepositoriesArray
                                        totalCount:theTotalCount
                                              page:self.theCurrentLoadPage
@@ -453,7 +459,7 @@ const NSString *theMainVCKey = @"theMainVCKey";
     UIAlertController *theAlert = [UIAlertController alertControllerWithTitle:nil
                                                                       message:@"You searched too much. Try again later."
                                                                preferredStyle:UIAlertControllerStyleAlert];
-    
+
     UIAlertAction *theDefaultAction = [UIAlertAction actionWithTitle:@"OK"
                                                                style:UIAlertActionStyleDefault
                                                              handler:^(UIAlertAction * action) {}];
@@ -470,7 +476,7 @@ const NSString *theMainVCKey = @"theMainVCKey";
     
     UIAlertAction *theDefaultAction = [UIAlertAction actionWithTitle:@"OK"
                                                                style:UIAlertActionStyleDefault
-                                                             handler:^(UIAlertAction * action) {}];
+                                                             handler:nil];
     
     [theAlert addAction:theDefaultAction];
     [self presentViewController:theAlert animated:YES completion:nil];
@@ -496,10 +502,10 @@ const NSString *theMainVCKey = @"theMainVCKey";
                 break;
             case UserServiceErrorTooMuchRequests:
             {
-                @weakify(self);
+                weakify(self);
                 [BZExtensionsManager methodAsyncMainWithBlock:^
                 {
-                    @strongify(self);
+                    strongify(self);
                     [self methodAlertWithTooManySearch];
                     [self.theFooterIndicator stopAnimating];
                     [self.theMainRefreshControl endRefreshing];
@@ -515,10 +521,10 @@ const NSString *theMainVCKey = @"theMainVCKey";
         return;
     }
     self.theCurrentTotalRepositoriesNumber = theTotalCount;
-    @weakify(self);
+    weakify(self);
     [BZExtensionsManager methodAsyncMainWithBlock:^
      {
-         @strongify(self);
+         strongify(self);
          if (thePage == 1)
          {
              [self.theRepositoriesArray removeAllObjects];

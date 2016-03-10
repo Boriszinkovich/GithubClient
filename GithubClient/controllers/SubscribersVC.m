@@ -19,7 +19,7 @@
 @property (nonatomic, strong, nonnull) NSURLSession *theMainNSUrlSession;
 @property (nonatomic, strong, nonnull) NSURLSessionDataTask *theMainDataTask;
 @property (nonatomic, strong, nonnull) NSMutableArray *theSubscribersArray;
-@property (nonatomic, strong) UIRefreshControl* theMainRefreshControl;
+@property (nonatomic, strong) UIRefreshControl *theMainRefreshControl;
 @property (nonatomic, strong, nonnull) UITableView *theSubscribersTableView;
 @property (nonatomic, strong, nonnull) UIActivityIndicatorView *theFooterIndicator;
 @property (nonatomic, assign) NSInteger theCurrentLoadPage;
@@ -92,20 +92,19 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
     
     self.theSubscribersArray = [NSMutableArray new];
     self.theCurrentLoadPage = 1;
-    NSURLSessionConfiguration *theConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
-    
-    self.theMainNSUrlSession = [NSURLSession sessionWithConfiguration:theConfig];
+    NSURLSessionConfiguration *theURLSessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    self.theMainNSUrlSession = [NSURLSession sessionWithConfiguration:theURLSessionConfiguration];
     [self.theMainRefreshControl beginRefreshing];
     
     Reachability *theInternerReachability = [Reachability reachabilityForInternetConnection];
-    
     self.theInternetReachability = theInternerReachability;
-    @weakify(self);
+    
+    weakify(self);
     theInternerReachability.reachableBlock = ^(Reachability *theReachability)
     {
         [BZExtensionsManager methodAsyncMainWithBlock:^
          {
-             @strongify(self);
+             strongify(self);
              self.theCurrentLoadPage = 1;
              [self methodLoadSubscribersWithPage:self.theCurrentLoadPage];
          }];
@@ -115,7 +114,7 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
     {
         [BZExtensionsManager methodAsyncMainWithBlock:^
          {
-             @strongify(self);
+             strongify(self);
              [self methodAlertWithNoInternet];
              [self.theMainRefreshControl endRefreshing];
              [self.theFooterIndicator stopAnimating];
@@ -127,8 +126,7 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
     [self.view addSubview:theTopView];
     theTopView.theHeight = 70;
     theTopView.theWidth = theTopView.superview.theWidth;
-    
-    theTopView.backgroundColor = [UIColor colorWithHexString:@"F5F5F5"];
+    theTopView.backgroundColor = [UIColor getColorWithHexString:@"F5F5F5"];
     {
         UIButton *theBackButton = [UIButton new];
         [theTopView addSubview:theBackButton];
@@ -151,7 +149,6 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
         [theRepositoryNameLabel sizeToFit];
         theRepositoryNameLabel.theWidth = 240;
         theRepositoryNameLabel.theCenterX = theRepositoryNameLabel.superview.theWidth/2;
-        
         theRepositoryNameLabel.textAlignment = NSTextAlignmentCenter;
     }
     
@@ -168,7 +165,6 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
     UIRefreshControl *theMainRefreshControl = [UIRefreshControl new];
     self.theMainRefreshControl = theMainRefreshControl;
     [theSubscribersTableView addSubview:theMainRefreshControl];
-    
     [theMainRefreshControl addTarget:self
                               action:@selector(actionRefreshDidChange:)
                     forControlEvents:UIControlEventValueChanged];
@@ -261,7 +257,6 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
     }
 }
 
-
 #pragma mark - Methods (Public)
 
 #pragma mark - Methods (Private)
@@ -269,10 +264,14 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
 - (void)methodLoadSubscribersWithPage:(NSUInteger)thePage
 {
     UserService *theService = [UserService sharedInstance];
-    @weakify(self);
-    [theService methodLoadSubscribersWithUrlString:self.theMainRepository.theSubscribersUrlString Page:thePage count:theSubscribersLoadsCount taskKey:theSubscribersVCKey.copy completion:^(NSArray<Subscriber *> * _Nullable repositoriesArray, NSError * _Nullable error)
+    weakify(self);
+    [theService methodLoadSubscribersWithUrlString:self.theMainRepository.theSubscribersUrlString
+                                              Page:thePage
+                                             count:theSubscribersLoadsCount
+                                           taskKey:theSubscribersVCKey.copy
+                                        completion:^(NSArray<Subscriber *> * _Nullable repositoriesArray, NSError * _Nullable error)
      {
-         @strongify(self);
+         strongify(self);
          [self methodUpdateInterfaceWithSubscribersArray:repositoriesArray page:thePage error:error];
      }];
 }
@@ -296,10 +295,9 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
     UIAlertController *theAlert = [UIAlertController alertControllerWithTitle:@"No internet connection"
                                                                       message:@"Please, check you internet connection and continue searching"
                                                                preferredStyle:UIAlertControllerStyleAlert];
-    
     UIAlertAction *theDefaultAction = [UIAlertAction actionWithTitle:@"OK"
                                                                style:UIAlertActionStyleDefault
-                                                             handler:^(UIAlertAction * action) {}];
+                                                             handler:nil];
     
     [theAlert addAction:theDefaultAction];
     [self presentViewController:theAlert animated:YES completion:nil];
@@ -324,10 +322,10 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
                 break;
             case UserServiceErrorTooMuchRequests:
             {
-                @weakify(self);
+                weakify(self);
                 [BZExtensionsManager methodAsyncMainWithBlock:^
                  {
-                     @strongify(self);
+                     strongify(self);
                      [self methodAlertWithTooManySearch];
                      [self.theFooterIndicator stopAnimating];
                      [self.theMainRefreshControl endRefreshing];
@@ -345,10 +343,10 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
     if (!theSubscribersArray.count)
     {
         self.isCanBeLoadedMore = NO;
-        @weakify(self);
+        weakify(self);
         [BZExtensionsManager methodAsyncMainWithBlock:^
          {
-             @strongify(self);
+             strongify(self);
              [self.theMainRefreshControl endRefreshing];
              [self.theFooterIndicator stopAnimating];
              self.theFooterIndicator.theHeight = 0;
@@ -356,10 +354,10 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
          }];
         return;
     }
-    @weakify(self);
+    weakify(self);
     [BZExtensionsManager methodAsyncMainWithBlock:^
      {
-         @strongify(self);
+         strongify(self);
          if (thePage == 1)
          {
              [self.theSubscribersArray removeAllObjects];
@@ -386,8 +384,6 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
          self.theFooterIndicator.theHeight = 0;
          self.theSubscribersTableView.tableFooterView = self.theFooterIndicator;
      }];
-
-
 }
 
 #pragma mark - Standard Methods

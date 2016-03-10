@@ -12,7 +12,7 @@
 
 #pragma mark - Class Methods (Public)
 
-+ (UIColor * _Nullable)colorWithHexString:(NSString * _Nonnull)hex
++ (UIColor * _Nullable)getColorWithHexString:(NSString * _Nonnull)hex
 {
     NSString *cString = [[hex stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] uppercaseString];
     

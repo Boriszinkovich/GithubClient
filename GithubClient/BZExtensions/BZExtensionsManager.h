@@ -9,7 +9,6 @@
 #import <UIKit/UIKit.h>
 
 #import "NSObject+BZExtensions.h"
-#import "UIImageView+BZExtensions.h"
 #import "UIView+BZExtensions.h"
 #import "UIColor+BZExtensions.h"
 #import "UIImage+BZExtensions.h"
@@ -19,8 +18,8 @@
 #import "SMPageControl.h"
 #import "BZAnimation.h"
 #import "Reachability.h"
-#import "BZUrlSession.h"
-#import "EXTScope.h"
+#import "BZURLSession.h"
+#import "BZScope.h"
 
 BOOL isEqual(id _Nullable theObject1, id _Nullable theObject2);
 

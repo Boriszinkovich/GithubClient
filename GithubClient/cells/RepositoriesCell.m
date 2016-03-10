@@ -13,7 +13,7 @@
 
 @interface RepositoriesCell ()
 
-@property (nonatomic, strong, nonnull) BZUrlSession *theUrlSession;
+@property (nonatomic, strong, nonnull) BZURLSession *theUrlSession;
 
 @end
 
@@ -42,7 +42,7 @@
         return;
     }
     self.isFirstLoad = NO;
-    self.theUrlSession = [BZUrlSession new];
+    self.theUrlSession = [BZURLSession new];
     
     UIImageView *theAvatarImageView = [UIImageView new];
     self.theAvatarImageView = theAvatarImageView;
@@ -126,25 +126,25 @@
     theForksCountLabel.theWidth = 40;
     
     self.theAvatarImageView.image = [UIImage imageNamed:@"white_image"];
-    
     NSString *theAvatarUrlString = [NSString stringWithFormat:@"%@?s=40",theRepository.theAvatarUrlString];
-    [self.theUrlSession methodStartTaskWithUrl:[NSURL URLWithString:theAvatarUrlString] withCompletionBlock:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
-    {
-        if (!data)
-        {
-            return;
-        }
-        if (error)
-        {
-            return;
-        }
-        @weakify(self);
-        [BZExtensionsManager methodAsyncMainWithBlock:^
+    [self.theUrlSession methodStartTaskWithURL:[NSURL URLWithString:theAvatarUrlString]
+                               completionBlock:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
+     {
+         if (!data)
          {
-             @strongify(self);
-             self.theAvatarImageView.image = [UIImage imageWithData:data];
-         }];
-    }];
+             return;
+         }
+         if (error)
+         {
+             return;
+         }
+         weakify(self);
+         [BZExtensionsManager methodAsyncMainWithBlock:^
+          {
+              strongify(self);
+              self.theAvatarImageView.image = [UIImage imageWithData:data];
+          }];
+     }];
 }
 
 #pragma mark - Getters (Public)

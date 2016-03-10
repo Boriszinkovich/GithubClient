@@ -12,8 +12,8 @@
 
 @interface BZAnimation ()
 
-@property (nonatomic, copy) void (^ theMainAnimationBlock)();
-@property (nonatomic, copy) void (^ theMainCompletionBlock)(BOOL finished);
+@property (nonatomic, copy, nonnull) void (^ theMainAnimationBlock)();
+@property (nonatomic, copy, nullable) void (^ theMainCompletionBlock)(BOOL finished);
 
 @end
 
@@ -172,17 +172,21 @@
          }];
         return;
     }
+    UIView *theFakeView = [UIView new];
+    theFakeView.alpha = 1;
     [UIView animateWithDuration:0
                      animations:^
-     {//for the case when options = UIViewAnimationOptionBeginFromCurrentState
-         
+     {
+         theFakeView.alpha = 0;
+
      }
                      completion:^(BOOL finished)
      {
          [UIView animateWithDuration:self.theDuration
                                delay:self.theDelay
               usingSpringWithDamping:self.theSpringWithDamping
-               initialSpringVelocity:self.theInitialSpringVelocity options:self.theOptions
+               initialSpringVelocity:self.theInitialSpringVelocity
+                             options:self.theOptions
                           animations:^
           {
               self.theMainAnimationBlock();
@@ -193,9 +197,7 @@
               {
                   self.theMainCompletionBlock(finished);
               }
-              
           }];
-
      }];
 }
 

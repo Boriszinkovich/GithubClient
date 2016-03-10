@@ -6,16 +6,16 @@
 //  Copyright © 2016 BZ. All rights reserved.
 //
 
-#import "BZUrlSession.h"
+#import "BZURLSession.h"
 
-@interface BZUrlSession ()
+@interface BZURLSession ()
 
 @property (nonatomic, strong, nonnull) NSURLSessionDataTask *theMainDataTask;
 @property (nonatomic, strong, nonnull) NSURLSession *theMainNSUrlSession;
 
 @end
 
-@implementation BZUrlSession
+@implementation BZURLSession
 
 #pragma mark - Class Methods (Public)
 
@@ -69,8 +69,8 @@
     }
 }
 
-- (void)methodStartTaskWithUrl:(NSURL * _Nonnull)theUrl
-            withCompletionBlock:(void(^ _Nullable)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))theCompletionBlock
+- (void)methodStartTaskWithURL:(NSURL * _Nonnull)theUrl
+               completionBlock:(void(^ _Nullable)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))theCompletionBlock
 {
     if (!theUrl)
     {

@@ -23,8 +23,7 @@
 @property (nonatomic, strong, nonnull, readonly) UIView *theLeftSeparatorView;
 @property (nonatomic, strong, nonnull, readonly) UIView *theTopSeparatorView;
 @property (nonatomic, strong, nonnull, readonly) UIView *theBottomSeparatorView;
-
-- (NSArray * _Nonnull)getTheSeparatorsArray;
+@property (nonatomic, strong, nonnull, readonly) NSArray *theSeparatorsArray;
 
 @end
 

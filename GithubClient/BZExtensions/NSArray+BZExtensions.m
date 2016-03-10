@@ -20,13 +20,13 @@
         id theArrayElement = theMutableArray[i];
         if ([theArrayElement isKindOfClass:[NSArray class]])
         {
-            NSArray* theCurrentArray = [theArrayElement theArrayWithoutNulls];
+            NSArray *theCurrentArray = [theArrayElement theArrayWithoutNulls];
             theMutableArray[i] = theCurrentArray;
             continue;
         }
         if ([theArrayElement isKindOfClass:[NSDictionary class]])
         {
-            NSDictionary* theCurrentDictionary = [theArrayElement theDictionaryWithoutNulls];
+            NSDictionary *theCurrentDictionary = [theArrayElement theDictionaryWithoutNulls];
             theMutableArray[i] = theCurrentDictionary;
             continue;
         }

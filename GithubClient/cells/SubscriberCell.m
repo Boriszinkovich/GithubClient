@@ -13,7 +13,7 @@
 
 @interface SubscriberCell ()
 
-@property (nonatomic, strong, nonnull) BZUrlSession *theUrlSession;
+@property (nonatomic, strong, nonnull) BZURLSession *theUrlSession;
 
 @end
 
@@ -42,7 +42,7 @@
         return;
     }
     self.isFirstLoad = NO;
-    self.theUrlSession = [BZUrlSession new];
+    self.theUrlSession = [BZURLSession new];
     
     UIImageView *theAvatarImageView = [UIImageView new];
     self.theAvatarImageView = theAvatarImageView;
@@ -64,7 +64,6 @@
     theNameLabel.theMinX = theAvatarImageView.theMaxX + 10;
     theNameLabel.theWidth = theLabelsWidth;
     theNameLabel.font = [UIFont systemFontOfSize:19];
-    
 }
 
 #pragma mark - Setters (Public)
@@ -79,18 +78,15 @@
     
     double theLabelsWidth = 180;
     UILabel *theNameLabel = self.theNameLabel;
-    
     theNameLabel.text = theSubscriber.theNameString;
     theNameLabel.theWidth = theLabelsWidth;
     [theNameLabel sizeToFit];
     theNameLabel.theWidth = theLabelsWidth;
-    //    NSString *theAvatarUrlString = theSubscriber.theAvatarUrlString;
-    //    [self.theAvatarImageView methodSetImageWithNSURL:[NSURL URLWithString:theAvatarUrlString]
-    //                                   withPlaceholderImage:[UIImage imageNamed:@"white_image"]];
+
     self.theAvatarImageView.image = [UIImage imageNamed:@"white_image"];
-    
     NSString *theAvatarUrlString = [NSString stringWithFormat:@"%@?s=40",theSubscriber.theAvatarUrlString];
-    [self.theUrlSession methodStartTaskWithUrl:[NSURL URLWithString:theAvatarUrlString] withCompletionBlock:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
+    [self.theUrlSession methodStartTaskWithURL:[NSURL URLWithString:theAvatarUrlString]
+                               completionBlock:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
      {
          if (!data)
          {
@@ -100,10 +96,10 @@
          {
              return;
          }
-         @weakify(self);
+         weakify(self);
          [BZExtensionsManager methodAsyncMainWithBlock:^
           {
-              @strongify(self);
+              strongify(self);
               self.theAvatarImageView.image = [UIImage imageWithData:data];
           }];
      }];

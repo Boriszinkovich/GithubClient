@@ -7,12 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@interface BZUrlSession : NSObject
+@interface BZURLSession : NSObject
 
 - (void)methodStop;
-- (void)methodStartTaskWithUrl:(NSURL * _Nonnull)theUrl
-            withCompletionBlock:(void(^ _Nullable)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))theCompletionBlock;
+- (void)methodStartTaskWithURL:(NSURL * _Nonnull)theUrl
+               completionBlock:(void(^ _Nullable)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))theCompletionBlock;
+
 
 @end
 
