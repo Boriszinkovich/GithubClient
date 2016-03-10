@@ -26,8 +26,6 @@
 @property (nonatomic, strong, nonnull) UIActivityIndicatorView *theFooterIndicator;
 @property (nonatomic, assign) NSInteger theCurrentTotalRepositoriesNumber;
 @property (nonatomic, strong) Reachability *theInternetReachability;
-@property (nonatomic, assign) BOOL isInternetConnected;
-@property (nonatomic, assign) BOOL firstReachabilityUsed;  // if Reachability first used - it always show no internet
 
 @end
 
@@ -84,6 +82,10 @@ const NSString *theMainVCKey = @"theMainVCKey";
     [super viewDidDisappear:animated];
 }
 
+- (void)dealloc
+{
+    [self.theInternetReachability stopNotifier];
+}
 #pragma mark - Create Views & Variables
 
 - (void)createAllViews
@@ -103,14 +105,31 @@ const NSString *theMainVCKey = @"theMainVCKey";
     self.theMainNSUrlSession = [NSURLSession sessionWithConfiguration:config];
     
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(actionReachabilityChanged:) name:kReachabilityChangedNotification object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(actionReachabilityChanged:) name:kReachabilityChangedNotification object:nil];
     Reachability *theInternerReachability = [Reachability reachabilityForInternetConnection];
-    
     self.theInternetReachability = theInternerReachability;
+    @weakify(self);
+    theInternerReachability.reachableBlock = ^(Reachability *theReachability)
+    {
+        [BZExtensionsManager methodAsyncMainWithBlock:^
+        {
+            @strongify(self);
+            self.theCurrentLoadPage = 1;
+            [self methodLoadWithChanges];
+        }];
+    };
+    theInternerReachability.unreachableBlock = ^(Reachability *theReachability)
+    {
+        @weakify(self);
+        [BZExtensionsManager methodAsyncMainWithBlock:^
+         {
+             @strongify(self);
+             [self methodAlertWithNoInternet];
+             [self.theMainRefreshControl endRefreshing];
+             [self.theFooterIndicator stopAnimating];
+         }];
+    };
     [theInternerReachability startNotifier];
-    self.firstReachabilityUsed = YES;
-    
- 
     
     UIView *theTopView = [UIView new];
     [self.view addSubview:theTopView];
@@ -192,51 +211,17 @@ const NSString *theMainVCKey = @"theMainVCKey";
 
 - (void)actionRefreshDidChange:(UIRefreshControl *)refreshControl
 {
+    if (!self.theInternetReachability.isReachable)
+    {
+        [self methodAlertWithNoInternet];
+        [self.theMainRefreshControl endRefreshing];
+        return;
+    }
     if ([self.theFooterIndicator isAnimating])
     {
         [self.theFooterIndicator stopAnimating];
     }
     [self methodLoadWithChanges];
-}
-
-- (void)actionReachabilityChanged:(NSNotification *)theNotification
-{
-    Reachability* theReachability = [theNotification object];
-    NetworkStatus netStatus = [theReachability currentReachabilityStatus];
-    
-    switch (netStatus)
-    {
-        case NotReachable:
-        {
-            [self methodAlertWithNoInternet];
-            [self.theMainRefreshControl endRefreshing];
-            [self.theFooterIndicator stopAnimating];
-            self.isInternetConnected = NO;
-        }
-            break;
-        case ReachableViaWWAN:
-        {
-            if (self.isInternetConnected)
-            {
-                break;
-            }
-            self.theCurrentLoadPage = 1;
-            self.isInternetConnected = YES;
-            [self methodLoadWithChanges];
-        }
-            break;
-        case ReachableViaWiFi:
-        {
-            if (self.isInternetConnected)
-            {
-                break;
-            }
-            self.theCurrentLoadPage = 1;
-            self.isInternetConnected = YES;
-            [self methodLoadWithChanges];
-        }
-            break;
-    }
 }
 
 #pragma mark - Gestures
@@ -245,6 +230,12 @@ const NSString *theMainVCKey = @"theMainVCKey";
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (!self.theInternetReachability.isReachable)
+    {
+        [self methodAlertWithNoInternet];
+        return;
+    }
+    
     Repository *theChosedRepository;
     
     theChosedRepository = self.theRepositoriesArray[indexPath.row];
@@ -309,6 +300,10 @@ const NSString *theMainVCKey = @"theMainVCKey";
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
+    if (!self.theInternetReachability.isReachable)
+    {
+        return;
+    }
     if ([self.theFooterIndicator isAnimating])
     {
         return;
@@ -371,9 +366,9 @@ const NSString *theMainVCKey = @"theMainVCKey";
 
 - (void)methodLoadWithChanges
 {
-    [self methodCheckReachability:self.theInternetReachability];
-    if (!self.isInternetConnected)
+    if (!self.theInternetReachability.isReachable)
     {
+        [self methodAlertWithNoInternet];
         return;
     }
     if (![self.theMainRefreshControl isRefreshing])
@@ -414,9 +409,9 @@ const NSString *theMainVCKey = @"theMainVCKey";
 
 - (void)methodLoadWithScroll
 {
-    [self methodCheckReachability:self.theInternetReachability];
-    if (!self.isInternetConnected)
+    if (!self.theInternetReachability.isReachable)
     {
+        [self methodAlertWithNoInternet];
         return;
     }
     if (self.theCurrentTotalRepositoriesNumber < self.theCurrentLoadPage * theLoadsCount)
@@ -459,7 +454,8 @@ const NSString *theMainVCKey = @"theMainVCKey";
                                                                       message:@"You searched too much. Try again later."
                                                                preferredStyle:UIAlertControllerStyleAlert];
     
-    UIAlertAction *theDefaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+    UIAlertAction *theDefaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                               style:UIAlertActionStyleDefault
                                                              handler:^(UIAlertAction * action) {}];
     
     [theAlert addAction:theDefaultAction];
@@ -472,54 +468,12 @@ const NSString *theMainVCKey = @"theMainVCKey";
                                                                       message:@"Please, check you internet connection and continue searching"
                                                                preferredStyle:UIAlertControllerStyleAlert];
     
-    UIAlertAction *theDefaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+    UIAlertAction *theDefaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                               style:UIAlertActionStyleDefault
                                                              handler:^(UIAlertAction * action) {}];
     
     [theAlert addAction:theDefaultAction];
     [self presentViewController:theAlert animated:YES completion:nil];
-}
-
-- (void)methodCheckReachability:(Reachability *)theReachability
-{
-    NetworkStatus netStatus = [theReachability currentReachabilityStatus];
-    if (self.firstReachabilityUsed)
-    {
-        self.firstReachabilityUsed = NO;
-        self.isInternetConnected = YES;
-        [BZExtensionsManager methodDispatchAfterSeconds:1
-                                              withBlock:^
-         {
-             [self methodCheckReachability:self.theInternetReachability];
-         }];
-        return;
-    }
-    switch (netStatus)
-    {
-        case NotReachable:
-        {
-
-            [self methodAlertWithNoInternet];
-            [self.theMainRefreshControl endRefreshing];
-            [self.theFooterIndicator stopAnimating];
-            self.isInternetConnected = NO;
-            return;
-        }
-            break;
-        case ReachableViaWWAN:
-        {
-            self.theCurrentLoadPage = 1;
-            self.isInternetConnected = YES;
-            return;
-        }
-             break;
-        case ReachableViaWiFi:
-        {
-            self.theCurrentLoadPage = 1;
-            self.isInternetConnected = YES;
-            return ;
-        }
-            break;
-    }
 }
 
 - (void)methodUpdateInterfaceWithRepoArray:(NSArray *)theRepoArray

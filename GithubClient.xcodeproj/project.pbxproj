@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE7D9DF01C9148BC00F43D1B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CE7D9DEF1C9148BC00F43D1B /* Default-568h@2x.png */; };
 		CEEFB0241C90C7940000CA93 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CEEFB0231C90C7940000CA93 /* main.m */; };
 		CEEFB0301C90C7940000CA93 /* GithubClient.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = CEEFB02E1C90C7940000CA93 /* GithubClient.xcdatamodeld */; };
 		CEEFB0321C90C7940000CA93 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CEEFB0311C90C7940000CA93 /* Assets.xcassets */; };
@@ -60,6 +61,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CE7D9DEF1C9148BC00F43D1B /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		CEEFB01F1C90C7940000CA93 /* GithubClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GithubClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEEFB0231C90C7940000CA93 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		CEEFB02F1C90C7940000CA93 /* GithubClient.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = GithubClient.xcdatamodel; sourceTree = "<group>"; };
@@ -152,6 +154,7 @@
 		CEEFB0161C90C7940000CA93 = {
 			isa = PBXGroup;
 			children = (
+				CE7D9DEF1C9148BC00F43D1B /* Default-568h@2x.png */,
 				CEEFB0211C90C7940000CA93 /* GithubClient */,
 				CEEFB03E1C90C7950000CA93 /* GithubClientTests */,
 				CEEFB0491C90C7950000CA93 /* GithubClientUITests */,
@@ -416,6 +419,7 @@
 				CEEFB0A61C90C8EA0000CA93 /* github_fork@1x.png in Resources */,
 				CEEFB0A81C90C8EA0000CA93 /* github_icon@1x.png in Resources */,
 				CEEFB0A91C90C8EA0000CA93 /* github_icon@2x.png in Resources */,
+				CE7D9DF01C9148BC00F43D1B /* Default-568h@2x.png in Resources */,
 				CEEFB0321C90C7940000CA93 /* Assets.xcassets in Resources */,
 				CEEFB0A71C90C8EA0000CA93 /* github_fork@2x.png in Resources */,
 			);
@@ -670,6 +674,7 @@
 				CEEFB0511C90C7950000CA93 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		CEEFB0521C90C7950000CA93 /* Build configuration list for PBXNativeTarget "GithubClientTests" */ = {
 			isa = XCConfigurationList;
@@ -678,6 +683,7 @@
 				CEEFB0541C90C7950000CA93 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		CEEFB0551C90C7950000CA93 /* Build configuration list for PBXNativeTarget "GithubClientUITests" */ = {
 			isa = XCConfigurationList;
@@ -686,6 +692,7 @@
 				CEEFB0571C90C7950000CA93 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 

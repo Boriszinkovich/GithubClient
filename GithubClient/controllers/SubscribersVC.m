@@ -25,8 +25,6 @@
 @property (nonatomic, assign) NSInteger theCurrentLoadPage;
 @property (nonatomic, assign) BOOL isCanBeLoadedMore;
 @property (nonatomic, strong) Reachability *theInternetReachability;
-@property (nonatomic, assign) BOOL isInternetConnected;
-@property (nonatomic, assign) BOOL firstReachabilityUsed;
 
 @end
 
@@ -69,34 +67,16 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
     if (self.isFirstLoad)
     {
         [self createAllViews];
-        self.theSubscribersArray = [NSMutableArray new];
-        self.theCurrentLoadPage = 1;
-        NSURLSessionConfiguration *theConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
-        
-        self.theMainNSUrlSession = [NSURLSession sessionWithConfiguration:theConfig];
-        [self.theMainRefreshControl beginRefreshing];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(actionReachabilityChanged:) name:kReachabilityChangedNotification object:nil];
-        Reachability *theInternerReachability = [Reachability reachabilityForInternetConnection];
-        
-        self.theInternetReachability = theInternerReachability;
-        [theInternerReachability startNotifier];
-        self.firstReachabilityUsed = YES;
+
 
         [self methodLoadSubscribersWithPage:self.theCurrentLoadPage];
     }
 }
 
-- (void)viewWillDisappear:(BOOL)animated
+- (void)dealloc
 {
-    [super viewWillDisappear:animated];
+    [self.theInternetReachability stopNotifier];
 }
-
-- (void)viewDidDisappear:(BOOL)animated
-{
-    [super viewDidDisappear:animated];
-}
-
 
 #pragma mark - Create Views & Variables
 
@@ -109,6 +89,39 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
     self.isFirstLoad = NO;
     self.navigationController.navigationBar.hidden = YES;
     self.automaticallyAdjustsScrollViewInsets = NO;
+    
+    self.theSubscribersArray = [NSMutableArray new];
+    self.theCurrentLoadPage = 1;
+    NSURLSessionConfiguration *theConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+    
+    self.theMainNSUrlSession = [NSURLSession sessionWithConfiguration:theConfig];
+    [self.theMainRefreshControl beginRefreshing];
+    
+    Reachability *theInternerReachability = [Reachability reachabilityForInternetConnection];
+    
+    self.theInternetReachability = theInternerReachability;
+    @weakify(self);
+    theInternerReachability.reachableBlock = ^(Reachability *theReachability)
+    {
+        [BZExtensionsManager methodAsyncMainWithBlock:^
+         {
+             @strongify(self);
+             self.theCurrentLoadPage = 1;
+             [self methodLoadSubscribersWithPage:self.theCurrentLoadPage];
+         }];
+    };
+    
+    theInternerReachability.unreachableBlock = ^(Reachability *theReachability)
+    {
+        [BZExtensionsManager methodAsyncMainWithBlock:^
+         {
+             @strongify(self);
+             [self methodAlertWithNoInternet];
+             [self.theMainRefreshControl endRefreshing];
+             [self.theFooterIndicator stopAnimating];
+         }];
+    };
+    [theInternerReachability startNotifier];
     
     UIView *theTopView = [UIView new];
     [self.view addSubview:theTopView];
@@ -156,7 +169,9 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
     self.theMainRefreshControl = theMainRefreshControl;
     [theSubscribersTableView addSubview:theMainRefreshControl];
     
-    [theMainRefreshControl addTarget:self action:@selector(actionRefreshDidChange:) forControlEvents:UIControlEventValueChanged];
+    [theMainRefreshControl addTarget:self
+                              action:@selector(actionRefreshDidChange:)
+                    forControlEvents:UIControlEventValueChanged];
     
     UIActivityIndicatorView *theFooterIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     self.theFooterIndicator = theFooterIndicator;
@@ -174,48 +189,14 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
 
 - (void)actionRefreshDidChange:(UIRefreshControl *)theRefreshControl
 {
+    if (!self.theInternetReachability.isReachable)
+    {
+        [self methodAlertWithNoInternet];
+        [self.theMainRefreshControl endRefreshing];
+        return;
+    }
     self.theCurrentLoadPage = 1;
     [self methodLoadSubscribersWithPage:self.theCurrentLoadPage];
-}
-
-- (void)actionReachabilityChanged:(NSNotification *)theNotification
-{
-    Reachability* theReachability = [theNotification object];
-    NetworkStatus netStatus = [theReachability currentReachabilityStatus];
-    
-    switch (netStatus)
-    {
-        case NotReachable:
-        {
-            [self methodAlertWithNoInternet];
-            [self.theMainRefreshControl endRefreshing];
-            [self.theFooterIndicator stopAnimating];
-            self.isInternetConnected = NO;
-        }
-            break;
-        case ReachableViaWWAN:
-        {
-            if (self.isInternetConnected)
-            {
-                break;
-            }
-            self.theCurrentLoadPage = 1;
-            self.isInternetConnected = YES;
-            [self methodLoadSubscribersWithPage:self.theCurrentLoadPage];
-        }
-            break;
-        case ReachableViaWiFi:
-        {
-            if (self.isInternetConnected)
-            {
-                break;
-            }
-            self.theCurrentLoadPage = 1;
-            self.isInternetConnected = YES;
-            [self methodLoadSubscribersWithPage:self.theCurrentLoadPage];
-        }
-            break;
-    }
 }
 
 #pragma mark - Gestures
@@ -231,7 +212,7 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
 {
     static NSString *theBZSubscribersUITableViewCellIdentifier = @"theBZSubscribersUITableViewCellIdentifier";
     SubscriberCell *theCell = (SubscriberCell *)[tableView dequeueReusableCellWithIdentifier:theBZSubscribersUITableViewCellIdentifier];
-    if (theCell == nil)
+    if (!theCell)
     {
         theCell = [[SubscriberCell alloc] initWithStyle:UITableViewCellStyleDefault
                                         reuseIdentifier:theBZSubscribersUITableViewCellIdentifier];
@@ -249,6 +230,10 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
+    if (!self.theInternetReachability.isReachable)
+    {
+        return;
+    }
     if ([self.theFooterIndicator isAnimating])
     {
         self.isCanBeLoadedMore = NO;
@@ -268,6 +253,8 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
         if (![self.theMainRefreshControl isRefreshing])
         {
             [self.theFooterIndicator startAnimating];
+            self.theFooterIndicator.theHeight = 40;
+            self.theSubscribersTableView.tableFooterView = self.theFooterIndicator;
             self.theCurrentLoadPage++;
             [self methodLoadSubscribersWithPage:self.theCurrentLoadPage];
         }
@@ -296,7 +283,8 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
                                                                       message:@"You searched too much. Try again later."
                                                                preferredStyle:UIAlertControllerStyleAlert];
     
-    UIAlertAction *theDefaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+    UIAlertAction *theDefaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                               style:UIAlertActionStyleDefault
                                                              handler:nil];
     
     [theAlert addAction:theDefaultAction];
@@ -309,51 +297,12 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
                                                                       message:@"Please, check you internet connection and continue searching"
                                                                preferredStyle:UIAlertControllerStyleAlert];
     
-    UIAlertAction *theDefaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+    UIAlertAction *theDefaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                               style:UIAlertActionStyleDefault
                                                              handler:^(UIAlertAction * action) {}];
     
     [theAlert addAction:theDefaultAction];
     [self presentViewController:theAlert animated:YES completion:nil];
-}
-
-- (void)methodCheckReachability:(Reachability *)theReachability
-{
-    NetworkStatus netStatus = [theReachability currentReachabilityStatus];
-    if (self.firstReachabilityUsed)
-    {
-        self.firstReachabilityUsed = NO;
-        self.isInternetConnected = YES;
-        [BZExtensionsManager methodDispatchAfterSeconds:1
-                                              withBlock:^
-         {
-             [self methodCheckReachability:self.theInternetReachability];
-         }];
-        return;
-    }
-    switch (netStatus)
-    {
-        case NotReachable:
-        {
-            [self methodAlertWithNoInternet];
-            [self.theMainRefreshControl endRefreshing];
-            [self.theFooterIndicator stopAnimating];
-            self.isInternetConnected = NO;
-            return;
-        }
-            break;
-        case ReachableViaWWAN:
-        {
-            self.isInternetConnected = YES;
-            return;
-        }
-            break;
-        case ReachableViaWiFi:
-        {
-            self.isInternetConnected = YES;
-            return ;
-        }
-            break;
-    }
 }
 
 - (void)methodUpdateInterfaceWithSubscribersArray:(NSArray *)theSubscribersArray
@@ -434,6 +383,8 @@ const NSString *theSubscribersVCKey = @"theSubscribersVCKey";
          }
          [self.theFooterIndicator stopAnimating];
          [self.theMainRefreshControl endRefreshing];
+         self.theFooterIndicator.theHeight = 0;
+         self.theSubscribersTableView.tableFooterView = self.theFooterIndicator;
      }];
 
 
