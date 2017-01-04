@@ -1,3 +1,3 @@
 # GithubClient
 
-Simple realization of gihub client
+Simple realization of github client
